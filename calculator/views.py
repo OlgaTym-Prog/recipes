@@ -26,8 +26,15 @@ def recipe_view(request, dish):
     if not recipe:
         return HttpResponse(f'Неизвестный рецепт для {dish}', status=404)
 
-    servings = int(request.GET.get('servings', 4))
+    # Проверка и обработка количества порций
+    try:
+        servings = int(request.GET.get('servings', 4))
+        if servings < 1:
+            raise ValueError
+    except ValueError:
+        return HttpResponse('Количество порций должно быть положительным целым числом', status=400)
 
+    # Вычисление порций
     updated_recipe = {ingredient: amount * servings for ingredient, amount in recipe.items()}
 
     context = {
